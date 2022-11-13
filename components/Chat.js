@@ -9,18 +9,53 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 
+// importing firebase
+const firebase = require('firebase');
+require('firebase/firestore');
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBYASrEUrk2rWtmNKNCZAfnvPEK5o0Kahw",
+  authDomain: "test-c46a4.firebaseapp.com",
+  projectId: "test-c46a4",
+  storageBucket: "test-c46a4.appspot.com",
+  messagingSenderId: "787632016364",
+  appId: "1:787632016364:web:f1cf13b424d510d131cec9",
+  measurementId: "G-NCKMNQV3ES"
+};
+ // Initialize Firebase
+ if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+
 export default class Chat extends React.Component {
   constructor() {
     super();
     this.state = {
       messages: [],
+      
     };
   }
+  
   componentDidMount() {
      // Set the name property to be included in the navigation bar
-     let name = this.props.route.params.name;
-     this.props.navigation.setOptions({ title: name });
-     
+    let name = this.props.route.params.name;
+    this.props.navigation.setOptions({ title: name });
+    this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        firebase.auth().signInAnonymously();
+      }
+      this.setState({
+        uid: user.uid,
+        messages: [],
+      });
+      this.unsubscribe = this.referenceChatMessages
+        .orderBy("createdAt", "desc")
+        .onSnapshot(this.onCollectionUpdate);
+    });
+    this.referenceShoppingLists = firebase.firestore().collection('shoppinglists');
+    this.unsubscribe = this.referenceShoppingLists.onSnapshot(this.onCollectionUpdate)
+
     this.setState({
       messages: [
         {
@@ -43,6 +78,10 @@ export default class Chat extends React.Component {
     });
   }
 
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
  //Appends new message to previous
   onSend(messages = []) {
     this.setState((previousState) => ({
@@ -50,6 +89,21 @@ export default class Chat extends React.Component {
     }));
   }
 
+  onCollectionUpdate = (querySnapshot) => {
+    const lists = [];
+    // go through each document
+    querySnapshot.forEach((doc) => {
+      //get the QueryDocumentSnapshot's data
+      var data = doc.data();
+      lists.push({
+        name: data.name,
+        items: data.items.toString(),
+      });
+    });
+    this.setState({
+      lists,
+    }) ;
+  };
   //Allows bubble customization   
   renderBubble(props) {
     return (
@@ -87,3 +141,18 @@ export default class Chat extends React.Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingTop: 40,     
+  },
+  item: {
+    fontSize: 20,
+    color: 'blue',
+  },
+  text: {
+    fontSize: 30,
+  }
+});
