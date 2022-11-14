@@ -48,12 +48,12 @@ export default class Chat extends React.Component {
     this.setState({
         
       messages: [
-        // {
-        //   _id: 2,
-        //   text: `${name} has entered the chat`,
-        //   createdAt: new Date(),
-        //   system: true,
-        // },
+        {
+          _id: 2,
+          text: `${name} has entered the chat`,
+          createdAt: new Date(),
+          system: true,
+        },
       ],
       
     });
@@ -79,7 +79,7 @@ export default class Chat extends React.Component {
   }
 
   componentWillUnmount() {
-    this.unsubscribe();
+    // this.unsubscribe();
     this.authUnsubscribe();
   }
 
@@ -127,7 +127,7 @@ export default class Chat extends React.Component {
       //get the QueryDocumentSnapshot's data
       let data = doc.data();
       messages.push({
-        _id: data.id,
+        _id: data._id,
         text: data.text,
         createdAt: data.createdAt.toDate(),
         user: {
@@ -152,7 +152,7 @@ export default class Chat extends React.Component {
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
           user={{
-            _id: this.state.uid,
+            _id: this.state.user._id,
            
             avatar: 'https://placeimg.com/130/130/any',
           }}
