@@ -16,6 +16,7 @@ location.
 - React Native
 - Expo App
 - Android Emulator
+- iOS xCode
 - React Native Gifted Chat 
 - Google Firebase
 
